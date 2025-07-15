@@ -33,5 +33,20 @@ router.post('/sign-up', async (req, res) => {
     res.send(`Thanks for signing up ${newUser.username}`)
 })
 
+// SIGN IN VIEW
+router.get('/sign-in', (req, res) => {
+    res.render('auth/sign-in.ejs')
+})
+
+// POST TO SIGN THE USER IN (CREATE SESSION)
+router.post('/sign-in', async (req, res) => {
+    // check if user already exists in database
+    const userInDatabase = await User.findOne({ username: req.body.username })
+    // if userInDatabase is NOT NULL (that means the user exists) then send this message
+    if (!userInDatabase) {
+        return res.send('Login failed. Please try again.')
+    }
+    const validPassword = bcrypt.compareSync(req.body.password, userInDatabase.password)
+})
 
 module.exports = router
