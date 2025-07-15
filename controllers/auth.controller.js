@@ -42,11 +42,19 @@ router.get('/sign-in', (req, res) => {
 router.post('/sign-in', async (req, res) => {
     // check if user already exists in database
     const userInDatabase = await User.findOne({ username: req.body.username })
-    // if userInDatabase is NOT NULL (that means the user exists) then send this message
+    // if userInDatabase is NOT FALSE (that means the user does exist) then send this message
     if (!userInDatabase) {
         return res.send('Login failed. Please try again.')
     }
     const validPassword = bcrypt.compareSync(req.body.password, userInDatabase.password)
+    if(!validPassword) {
+        return res.send('Login failed. Please try again.')
+    }
+    req.session.user = {
+        username: userInDatabase.username,
+        _id: userInDatabase._id,
+    }
+    res.redirect('/')
 })
 
 module.exports = router

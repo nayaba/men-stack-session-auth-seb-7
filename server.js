@@ -4,6 +4,7 @@ const app = express()
 const methodOverride = require('method-override')
 const morgan = require('morgan')
 const mongoose = require('mongoose')
+const session = require('express-session')
 const authController = require('./controllers/auth.controller')
 
 // DATABASE CONNECTION
@@ -16,9 +17,14 @@ mongoose.connection.on('connected', () => {
 app.use(express.urlencoded({ extended: false }))
 app.use(methodOverride('_method'))
 app.use(morgan('dev'))
+app.use(session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+}))
 
 app.get('/', (req, res) => {
-    res.render('index.ejs', { title: 'my App' })
+    res.render('index.ejs', { title: 'my App', user: req.session.user })
 })
 
 // ROUTES
