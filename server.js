@@ -7,6 +7,7 @@ const mongoose = require('mongoose')
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
 const authController = require('./controllers/auth.controller')
+const isSignedIn = require('./middleware/is-signed-in')
 
 // DATABASE CONNECTION
 mongoose.connect(process.env.MONGODB_URI)
@@ -33,6 +34,10 @@ app.get('/', (req, res) => {
 
 // ROUTES
 app.use('/auth', authController)
+
+app.get('/vip-lounge', isSignedIn, (req, res) => {
+    res.send(`Welcome ✨`)
+})
 
 const port = process.env.PORT ? process.env.PORT : "3000"
 app.listen(port, () => {

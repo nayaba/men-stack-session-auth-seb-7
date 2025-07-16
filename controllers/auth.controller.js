@@ -16,7 +16,8 @@ router.get('/sign-up', (req, res) => {
 router.post('/sign-up', async (req, res) => {
     // get data from the form (req.body)
     // check if someone already exists
-    console.log(req.body)
+    // req.body = form data
+    console.log(req)
     const userInDatabase = await User.findOne({ username: req.body.username })
     if (userInDatabase) {
         return res.send('Username already taken.')
@@ -30,7 +31,15 @@ router.post('/sign-up', async (req, res) => {
     const hashedPassword = bcrypt.hashSync(req.body.password, 10)
     req.body.password = hashedPassword
     const newUser = await User.create(req.body)
-    res.send(`Thanks for signing up ${newUser.username}`)
+    req.session.user = {
+        username: newUser.username,
+        _id: newUser._id,
+    }
+    
+    req.session.save(() => {
+        console.log(req.session)
+        res.redirect('/')
+    })
 })
 
 // SIGN IN VIEW
@@ -42,6 +51,7 @@ router.get('/sign-in', (req, res) => {
 router.post('/sign-in', async (req, res) => {
     // check if user already exists in database
     const userInDatabase = await User.findOne({ username: req.body.username })
+    console.log(userInDatabase)
     // if userInDatabase is NOT NULL (that means the user does exist) then send this message
     if (!userInDatabase) {
         return res.send('Login failed. Please try again.')
