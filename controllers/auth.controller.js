@@ -42,7 +42,7 @@ router.get('/sign-in', (req, res) => {
 router.post('/sign-in', async (req, res) => {
     // check if user already exists in database
     const userInDatabase = await User.findOne({ username: req.body.username })
-    // if userInDatabase is NOT FALSE (that means the user does exist) then send this message
+    // if userInDatabase is NOT NULL (that means the user does exist) then send this message
     if (!userInDatabase) {
         return res.send('Login failed. Please try again.')
     }
@@ -54,7 +54,16 @@ router.post('/sign-in', async (req, res) => {
         username: userInDatabase.username,
         _id: userInDatabase._id,
     }
-    res.redirect('/')
+    req.session.save(() => {
+        res.redirect('/')
+    })
+})
+
+// SIGN OUT VIEW
+router.get('/sign-out', (req, res) => {
+    req.session.destroy(() => {
+        res.redirect('/')
+    })
 })
 
 module.exports = router
